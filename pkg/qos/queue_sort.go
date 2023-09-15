@@ -18,6 +18,7 @@ package qos
 
 import (
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/klog/v2"
 	"k8s.io/apimachinery/pkg/runtime"
 	corev1helpers "k8s.io/component-helpers/scheduling/corev1"
 	v1qos "k8s.io/kubernetes/pkg/apis/core/v1/helper/qos"
@@ -43,6 +44,8 @@ func (pl *Sort) Name() string {
 func (*Sort) Less(pInfo1, pInfo2 *framework.QueuedPodInfo) bool {
 	p1 := corev1helpers.PodPriority(pInfo1.Pod)
 	p2 := corev1helpers.PodPriority(pInfo2.Pod)
+	klog.InfoS("Pod order values: p1order  %s, p2order %s \n", pInfo1.Pod.Name,  pInfo2.Pod.Name)
+	klog.InfoS("Pod order values", "p1order", p1, "p2 order", p2)
 	return (p1 > p2) || (p1 == p2 && compQOS(pInfo1.Pod, pInfo2.Pod))
 }
 
@@ -59,5 +62,6 @@ func compQOS(p1, p2 *v1.Pod) bool {
 
 // New initializes a new plugin and returns it.
 func New(_ runtime.Object, _ framework.Handle) (framework.Plugin, error) {
+	klog.Infof("Creating new instance of the QoSSort plugin")
 	return &Sort{}, nil
 }
